@@ -7,14 +7,13 @@ import { getDatabase } from "firebase/database";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCFvXaFXupFMtJ7XkMd9Iu_MztB3FfHNB4",
-  authDomain: "reactplay-63f17.firebaseapp.com",
-  projectId: "reactplay-63f17",
-  storageBucket: "reactplay-63f17.appspot.com",
-  messagingSenderId: "58036014530",
-  appId: "1:58036014530:web:5daf24d9237f8761ea1a5b",
-  databaseURL:
-    "https://reactplay-63f17-default-rtdb.asia-southeast1.firebasedatabase.app",
+  apiKey: process.env.REACT_APP_APIKEY,
+  authDomain: process.env.REACT_APP_AUTHDOMAIN,
+  projectId: process.env.REACT_APP_PROJECTID,
+  storageBucket: process.env.REACT_APP_STORAGEBUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGINGSENDERID,
+  appId: process.env.REACT_APP_APPID,
+  databaseURL: process.env.REACT_APP_DATABASEURL
 };
 
 // Initialize Firebase
