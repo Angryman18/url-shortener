@@ -4,8 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { ref, set, onValue } from "firebase/database";
-import { database } from "./firebase";
+import useReadData from "./useReadData";
 
 function App() {
   return (
@@ -20,6 +19,7 @@ function App() {
 
 const Home = () => {
   const [url, setUrl] = useState("");
+  const { writeData } = useReadData();
   const [{ loading, write, uniqueId }, setStatus] = useState({
     loading: false,
     write: false,
@@ -32,6 +32,16 @@ const Home = () => {
     return `https://${url}`;
   };
 
+  // const getALlData = () => {
+  //   const starCountRef = ref(database, 'data');
+  //   onValue(starCountRef, (snapshot) => {
+  //     const dataExistence = snapshot.exists();
+  //     console.log(snapshot.val());
+  //   });
+  // };
+
+  // console.log(getALlData());
+
   const handleGenerate = async (e) => {
     if (!url) {
       return;
@@ -40,7 +50,7 @@ const Home = () => {
       new Date().getTime().toString(36) + Math.random().toString(36).slice(2);
     try {
       setStatus({ loading: true, write: false });
-      await set(ref(database, uniqueId), { url: validateURL(url) });
+      await writeData(uniqueId, validateURL(url));
       setStatus({ loading: false, write: true, uniqueId });
       setUrl("");
     } catch (err) {
@@ -107,20 +117,10 @@ const ShowURL = ({ write, uniqueId }) => {
 const RedirectComp = () => {
   const { params } = useParams();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const { readData } = useReadData();
 
-  const getData = useCallback(async (val) => {
-    return new Promise((resolve, reject) => {
-      const starCountRef = ref(database, val);
-      onValue(starCountRef, (snapshot) => {
-        const dataExistence = snapshot.exists();
-        if (dataExistence) {
-          resolve(snapshot.val());
-        } else {
-          reject("Invalid URL Parameters");
-        }
-      });
-    });
-  }, []);
+  const getData = useCallback(readData, [readData]);
 
   useEffect(() => {
     if (params) {
@@ -130,7 +130,7 @@ const RedirectComp = () => {
           const res = await getData(params);
           window.location.href = new URL(res?.url);
         } catch (err) {
-          console.log("err", err);
+          setError(err);
         } finally {
           setLoading(false);
         }
@@ -141,6 +141,11 @@ const RedirectComp = () => {
   if (loading) {
     return "Loading";
   }
+
+  if (error) {
+    return error;
+  }
+
   return "";
 };
 
